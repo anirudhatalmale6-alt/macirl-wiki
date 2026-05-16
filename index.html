@@ -140,6 +140,9 @@ tr:hover td { background: var(--bg-hover); }
 }
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
 .overlay.show { display: block; }
+
+/* Pricing highlight */
+.price-highlight { font-weight: 800; color: var(--green); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -157,6 +160,7 @@ tr:hover td { background: var(--bg-hover); }
   <div class="sidebar-nav">
     <div class="nav-section">Getting Started</div>
     <div class="nav-item active" data-page="home"><span class="icon">&#127968;</span> Home</div>
+    <div class="nav-item" data-page="pricing"><span class="icon">&#128176;</span> Pricing</div>
     <div class="nav-item" data-page="faq"><span class="icon">&#10067;</span> FAQ</div>
 
     <div class="nav-section">IPTV Guides</div>
@@ -198,7 +202,7 @@ tr:hover td { background: var(--bg-hover); }
 
   <div class="info-box success">
     <div class="info-label">New Customer?</div>
-    Start with the setup guide for your device below. Need help? Open a ticket in our Discord server.
+    Check our <a href="#" onclick="showPage('pricing');return false;">pricing plans</a>, then follow the setup guide for your device below. Need help? Open a ticket in our Discord server.
   </div>
 
   <h2>IPTV Setup Guides</h2>
@@ -233,6 +237,16 @@ tr:hover td { background: var(--bg-hover); }
       <div class="card-title">MAG Box</div>
       <div class="card-desc">MAG 254, 256, 322, 324, and more</div>
     </div>
+    <div class="card" onclick="showPage('iptv-enigma')">
+      <div class="card-icon">&#128225;</div>
+      <div class="card-title">Enigma2 / Zgemma</div>
+      <div class="card-desc">Zgemma, VU+, Dreambox receivers</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-formuler')">
+      <div class="card-icon">&#128225;</div>
+      <div class="card-title">Formuler</div>
+      <div class="card-desc">Z7+, Z8, Z10, Z11, GTV</div>
+    </div>
   </div>
 
   <h2>Media Server</h2>
@@ -252,6 +266,100 @@ tr:hover td { background: var(--bg-hover); }
       <div class="card-title">Troubleshooting</div>
       <div class="card-desc">Fix common issues quickly</div>
     </div>
+  </div>
+
+  <h2>Quick Links</h2>
+  <div class="card-grid">
+    <div class="card" onclick="showPage('pricing')">
+      <div class="card-icon">&#128176;</div>
+      <div class="card-title">Pricing & Plans</div>
+      <div class="card-desc">View all plans, bundles, and pricing</div>
+    </div>
+    <div class="card" onclick="showPage('vpn')">
+      <div class="card-icon">&#128274;</div>
+      <div class="card-title">VPN Guide</div>
+      <div class="card-desc">Protect your connection and prevent throttling</div>
+    </div>
+    <div class="card" onclick="showPage('faq')">
+      <div class="card-icon">&#10067;</div>
+      <div class="card-title">FAQ</div>
+      <div class="card-desc">Answers to common questions</div>
+    </div>
+    <div class="card" onclick="showPage('contact')">
+      <div class="card-icon">&#128172;</div>
+      <div class="card-title">Contact Us</div>
+      <div class="card-desc">Get help via Discord</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRICING ===== -->
+<div class="page" id="page-pricing">
+  <h1>Pricing & Plans</h1>
+  <p class="subtitle">Simple, affordable plans for every need.</p>
+
+  <div class="info-box success">
+    <div class="info-label">24-Hour Free Trial Available!</div>
+    Not sure yet? Open a ticket in our Discord and request a free 24-hour trial - no payment needed.
+  </div>
+
+  <h2>IPTV Plans</h2>
+  <p>All plans include Live TV, VOD (movies), TV series, EPG (TV guide), catch-up, and 24/7 support.</p>
+  <table>
+    <thead><tr><th>Plan</th><th>Duration</th><th>Connections</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td>Starter</td><td>1 Month</td><td>1</td><td id="price-iptv-1m-1c">$15</td></tr>
+      <tr><td>Standard</td><td>3 Months</td><td>1</td><td id="price-iptv-3m-1c">$35</td></tr>
+      <tr><td>Premium</td><td>6 Months</td><td>1</td><td id="price-iptv-6m-1c">$55</td></tr>
+      <tr><td>Ultimate</td><td>12 Months</td><td>1</td><td id="price-iptv-12m-1c">$85</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Multi-Connection Add-on</h3>
+  <p>Need to watch on multiple devices at the same time? Add extra connections:</p>
+  <table>
+    <thead><tr><th>Connections</th><th>Extra Cost</th></tr></thead>
+    <tbody>
+      <tr><td>2 Connections</td><td id="price-iptv-2c">+$5/month</td></tr>
+      <tr><td>3 Connections</td><td id="price-iptv-3c">+$8/month</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Media Server Plans</h2>
+  <p>Unlimited access to our movie and TV show library. Stream on demand, up to 4K quality.</p>
+  <table>
+    <thead><tr><th>Plan</th><th>Duration</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td>Monthly</td><td>1 Month</td><td id="price-media-1m">$10</td></tr>
+      <tr><td>Quarterly</td><td>3 Months</td><td id="price-media-3m">$25</td></tr>
+      <tr><td>Half Year</td><td>6 Months</td><td id="price-media-6m">$40</td></tr>
+      <tr><td>Annual</td><td>12 Months</td><td id="price-media-12m">$65</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Bundle Deals</h2>
+  <p>Get both IPTV and Media Server at a discounted rate!</p>
+  <table>
+    <thead><tr><th>Bundle</th><th>Duration</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td>IPTV + Media Server</td><td>1 Month</td><td id="price-bundle-1m">$20</td></tr>
+      <tr><td>IPTV + Media Server</td><td>3 Months</td><td id="price-bundle-3m">$50</td></tr>
+      <tr><td>IPTV + Media Server</td><td>6 Months</td><td id="price-bundle-6m">$80</td></tr>
+      <tr><td>IPTV + Media Server</td><td>12 Months</td><td id="price-bundle-12m">$130</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <div class="info-label">How to Order</div>
+    Open a support ticket in our Discord server and let us know which plan you'd like. We'll get you set up within 1-2 hours!
+  </div>
+
+  <h3>Payment Methods</h3>
+  <p>We accept PayPal, bank transfer, and cryptocurrency. Payment details are provided when you open an order ticket.</p>
+
+  <div class="info-box warning">
+    <div class="info-label">Refund Policy</div>
+    We offer full refunds within the first 48 hours if you're not satisfied. After 48 hours, partial refunds may be available depending on usage. Contact us via Discord.
   </div>
 </div>
 
