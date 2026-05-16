@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MACIRL Wiki</title>
+<style>
+:root {
+  --bg: #0d0d14;
+  --bg-secondary: #13131f;
+  --bg-card: #1a1a2e;
+  --bg-hover: #222240;
+  --border: #2a2a45;
+  --text: #e0e0f0;
+  --text-muted: #8888aa;
+  --accent: #00aaff;
+  --accent-glow: rgba(0,170,255,0.15);
+  --gradient-start: #ff00cc;
+  --gradient-mid: #00aaff;
+  --gradient-end: #ffdd00;
+  --green: #00e676;
+  --red: #ff3d3d;
+  --orange: #ffaa00;
+  --sidebar-w: 280px;
+  --radius: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  overflow-y: auto; z-index: 100; padding: 0;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+}
+.sidebar-header img { width: 44px; height: 44px; border-radius: 10px; }
+.sidebar-header .brand { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-header .subtitle { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+.sidebar-nav { padding: 12px 0; }
+.nav-section { padding: 12px 20px 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; font-size: 14px; color: var(--text-muted);
+  cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text); }
+.nav-item.active { background: var(--accent-glow); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.nav-item .icon { width: 20px; text-align: center; font-size: 16px; }
+
+/* Main content */
+.main { margin-left: var(--sidebar-w); min-height: 100vh; }
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(13,13,20,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-title { font-size: 14px; color: var(--text-muted); }
+.search-box {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 14px; color: var(--text); font-size: 13px; width: 260px; outline: none;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--text-muted); }
+
+.content { padding: 32px; max-width: 860px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* Typography */
+h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 22px; font-weight: 700; margin: 32px 0 12px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+h3 { font-size: 17px; font-weight: 600; margin: 20px 0 8px; color: var(--accent); }
+p { margin-bottom: 14px; color: var(--text); }
+.subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 24px; }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+.card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor: pointer; transition: all 0.25s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,170,255,0.1); }
+.card .card-icon { font-size: 28px; margin-bottom: 10px; }
+.card .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.card .card-desc { font-size: 13px; color: var(--text-muted); }
+
+/* Steps */
+.step {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; margin: 12px 0; display: flex; gap: 16px; align-items: flex-start;
+}
+.step-num {
+  min-width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--gradient-start));
+  display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; flex-shrink: 0;
+}
+.step-content { flex: 1; }
+.step-title { font-weight: 700; margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--text-muted); }
+
+/* Info boxes */
+.info-box { background: rgba(0,170,255,0.08); border: 1px solid rgba(0,170,255,0.25); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: 14px; }
+.info-box.warning { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.25); }
+.info-box.success { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.25); }
+.info-box .info-label { font-weight: 700; margin-bottom: 4px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px 4px 2px 0; }
+.tag-android { background: rgba(0,230,118,0.15); color: var(--green); }
+.tag-ios { background: rgba(0,170,255,0.15); color: var(--accent); }
+.tag-fire { background: rgba(255,170,0,0.15); color: var(--orange); }
+.tag-tv { background: rgba(255,0,204,0.15); color: var(--gradient-start); }
+.tag-pc { background: rgba(255,221,0,0.15); color: var(--gradient-end); }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th { background: var(--bg-card); color: var(--accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
+tr:hover td { background: var(--bg-hover); }
+
+/* Mobile */
+.hamburger { display: none; cursor: pointer; font-size: 24px; padding: 8px; color: var(--text); background: none; border: none; }
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hamburger { display: block; }
+  .content { padding: 20px 16px; }
+  .card-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 24px; }
+  .search-box { width: 160px; }
+}
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+.overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <img src="logo.png" alt="MACIRL" onerror="this.style.display='none'">
+    <div>
+      <div class="brand">MACIRL</div>
+      <div class="subtitle">Wiki & Guides</div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Getting Started</div>
+    <div class="nav-item active" data-page="home"><span class="icon">&#127968;</span> Home</div>
+    <div class="nav-item" data-page="faq"><span class="icon">&#10067;</span> FAQ</div>
+
+    <div class="nav-section">IPTV Guides</div>
+    <div class="nav-item" data-page="iptv-android"><span class="icon">&#128241;</span> Android</div>
+    <div class="nav-item" data-page="iptv-ios"><span class="icon">&#127823;</span> iOS / iPhone / iPad</div>
+    <div class="nav-item" data-page="iptv-firestick"><span class="icon">&#128293;</span> Amazon Firestick</div>
+    <div class="nav-item" data-page="iptv-smarttv"><span class="icon">&#128250;</span> Smart TV</div>
+    <div class="nav-item" data-page="iptv-pc"><span class="icon">&#128187;</span> Windows / Mac</div>
+    <div class="nav-item" data-page="iptv-mag"><span class="icon">&#128225;</span> MAG Box</div>
+    <div class="nav-item" data-page="iptv-enigma"><span class="icon">&#128225;</span> Enigma2 / Zgemma</div>
+    <div class="nav-item" data-page="iptv-formuler"><span class="icon">&#128225;</span> Formuler</div>
+
+    <div class="nav-section">Media Server</div>
+    <div class="nav-item" data-page="media-setup"><span class="icon">&#127916;</span> Getting Started</div>
+    <div class="nav-item" data-page="media-apps"><span class="icon">&#128230;</span> Recommended Apps</div>
+    <div class="nav-item" data-page="media-requests"><span class="icon">&#128172;</span> Content Requests</div>
+
+    <div class="nav-section">Support</div>
+    <div class="nav-item" data-page="troubleshooting"><span class="icon">&#128295;</span> Troubleshooting</div>
+    <div class="nav-item" data-page="vpn"><span class="icon">&#128274;</span> VPN Guide</div>
+    <div class="nav-item" data-page="contact"><span class="icon">&#128172;</span> Contact Us</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+      <span class="topbar-title" id="topbarTitle">Home</span>
+    </div>
+    <input type="text" class="search-box" placeholder="Search guides..." id="searchBox" oninput="handleSearch()">
+  </div>
+  <div class="content">
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+  <h1>Welcome to MACIRL Wiki</h1>
+  <p class="subtitle">Your complete guide to setting up and using MACIRL services.</p>
+
+  <div class="info-box success">
+    <div class="info-label">New Customer?</div>
+    Start with the setup guide for your device below. Need help? Open a ticket in our Discord server.
+  </div>
+
+  <h2>IPTV Setup Guides</h2>
+  <div class="card-grid">
+    <div class="card" onclick="showPage('iptv-android')">
+      <div class="card-icon">&#128241;</div>
+      <div class="card-title">Android</div>
+      <div class="card-desc">Phones, tablets, TV boxes, and Android TV</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-ios')">
+      <div class="card-icon">&#127823;</div>
+      <div class="card-title">iOS</div>
+      <div class="card-desc">iPhone, iPad, and Apple TV</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-firestick')">
+      <div class="card-icon">&#128293;</div>
+      <div class="card-title">Amazon Firestick</div>
+      <div class="card-desc">Firestick, Fire TV, and Fire Cube</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-smarttv')">
+      <div class="card-icon">&#128250;</div>
+      <div class="card-title">Smart TV</div>
+      <div class="card-desc">Samsung, LG, Sony, and other smart TVs</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-pc')">
+      <div class="card-icon">&#128187;</div>
+      <div class="card-title">Windows / Mac</div>
+      <div class="card-desc">Desktop and laptop computers</div>
+    </div>
+    <div class="card" onclick="showPage('iptv-mag')">
+      <div class="card-icon">&#128225;</div>
+      <div class="card-title">MAG Box</div>
+      <div class="card-desc">MAG 254, 256, 322, 324, and more</div>
+    </div>
+  </div>
+
+  <h2>Media Server</h2>
+  <div class="card-grid">
+    <div class="card" onclick="showPage('media-setup')">
+      <div class="card-icon">&#127916;</div>
+      <div class="card-title">Getting Started</div>
+      <div class="card-desc">How to access and use the media server</div>
+    </div>
+    <div class="card" onclick="showPage('media-apps')">
+      <div class="card-icon">&#128230;</div>
+      <div class="card-title">Recommended Apps</div>
+      <div class="card-desc">Best apps for every device</div>
+    </div>
+    <div class="card" onclick="showPage('troubleshooting')">
+      <div class="card-icon">&#128295;</div>
+      <div class="card-title">Troubleshooting</div>
+      <div class="card-desc">Fix common issues quickly</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FAQ ===== -->
+<div class="page" id="page-faq">
+  <h1>Frequently Asked Questions</h1>
+  <p class="subtitle">Quick answers to common questions.</p>
+
+  <h3>What is IPTV?</h3>
+  <p>IPTV (Internet Protocol Television) streams live TV channels and on-demand content over the internet. No satellite dish or antenna needed - just an internet connection and a compatible device.</p>
+
+  <h3>What devices are supported?</h3>
+  <p>Android phones/tablets, Amazon Firestick, iOS devices, Smart TVs (Samsung, LG, Sony), Windows, Mac, MAG boxes, Formuler, Enigma2/Zgemma, and more. Check the setup guides for your specific device.</p>
+
+  <h3>How fast do I get my login?</h3>
+  <p>Most orders are set up within 1-2 hours. During busy times it may take up to 12 hours.</p>
+
+  <h3>What internet speed do I need?</h3>
+  <p>Minimum 25 Mbps for HD content, 50 Mbps+ recommended for 4K. A wired ethernet connection will always give the best performance.</p>
+
+  <h3>Do you offer trials?</h3>
+  <p>Yes! Open a ticket in our Discord to request a 24-hour trial.</p>
+
+  <h3>What payment methods do you accept?</h3>
+  <p>PayPal, bank transfer, and crypto. Payment details are provided when you open an order ticket.</p>
+
+  <h3>Can I use it on multiple devices?</h3>
+  <p>Each subscription includes 1 connection by default. Multi-connection packages are available at a discounted rate - ask when ordering.</p>
+
+  <h3>What if the service goes down?</h3>
+  <p>Open a support ticket in Discord and we'll investigate immediately. We monitor our servers 24/7.</p>
+
+  <h3>Do I need a VPN?</h3>
+  <p>Not required, but recommended. Some ISPs may throttle streaming traffic. A VPN prevents this and adds privacy. Check our <a href="#" onclick="showPage('vpn');return false;">VPN Guide</a> for recommendations.</p>
+</div>
+
+<!-- ===== IPTV - ANDROID ===== -->
+<div class="page" id="page-iptv-android">
+  <h1>IPTV Setup - Android</h1>
+  <p class="subtitle">Setup guide for Android phones, tablets, TV boxes, and Android TV.</p>
+  <div style="margin-bottom:12px;"><span class="tag tag-android">Android Phone</span><span class="tag tag-android">Android Tablet</span><span class="tag tag-android">Android TV Box</span><span class="tag tag-android">Android TV</span></div>
+
+  <h2>Option 1: TiviMate (Recommended)</h2>
+  <div class="info-box">
+    <div class="info-label">Best for: Live TV</div>
+    TiviMate is the most popular and feature-rich IPTV player for Android. Free version available, premium unlocks recording and multiple playlists.
+  </div>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download TiviMate</div><div class="step-desc">Open the Google Play Store and search for "TiviMate IPTV Player". Install it.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add Playlist</div><div class="step-desc">Open TiviMate and tap "Add Playlist". Select "Xtream Codes" as the playlist type.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Enter Your Credentials</div><div class="step-desc">Enter your server URL, username, and password (these are provided after purchase in your Discord ticket).</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Load Channels</div><div class="step-desc">Tap "Next" and wait for all channels and EPG (TV guide) data to load. This may take a minute.</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Start Watching</div><div class="step-desc">Browse categories, use the EPG guide, or search for specific channels. Enjoy!</div></div></div>
+
+  <h2>Option 2: IPTV Smarters Pro</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download IPTV Smarters Pro</div><div class="step-desc">Get it from the Google Play Store - search "IPTV Smarters Pro".</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Login</div><div class="step-desc">Select "Login with Xtream Codes API". Enter any name, your server URL, username, and password.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Choose Content</div><div class="step-desc">Select Live TV, Movies, or Series from the main menu. Browse and enjoy!</div></div></div>
+
+  <h2>Option 3: OTT Navigator</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download OTT Navigator</div><div class="step-desc">Search "OTT Navigator IPTV" in the Play Store and install.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add Provider</div><div class="step-desc">Go to Settings > Providers > Add new. Select "Xtream Codes" and enter your credentials.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Done</div><div class="step-desc">Channels will load automatically. Use the channel list or EPG to browse.</div></div></div>
+</div>
+
+<!-- ===== IPTV - iOS ===== -->
+<div class="page" id="page-iptv-ios">
+  <h1>IPTV Setup - iOS</h1>
+  <p class="subtitle">Setup guide for iPhone, iPad, and Apple TV.</p>
+  <div style="margin-bottom:12px;"><span class="tag tag-ios">iPhone</span><span class="tag tag-ios">iPad</span><span class="tag tag-ios">Apple TV</span></div>
+
+  <h2>Option 1: IPTV Smarters Player</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download from App Store</div><div class="step-desc">Search "IPTV Smarters Player" in the App Store and install it.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Login with Xtream API</div><div class="step-desc">Select "Xtream Codes API" login. Enter your server URL, username, and password.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Start Watching</div><div class="step-desc">Tap "Add User" and wait for channels to load. Browse Live TV, VOD, and Series.</div></div></div>
+
+  <h2>Option 2: GSE Smart IPTV</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download GSE Smart IPTV</div><div class="step-desc">Get it from the App Store - search "GSE Smart IPTV".</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add Remote Playlist</div><div class="step-desc">Go to Remote Playlists > tap "+" > select "Xtream Codes API". Enter your credentials.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Save and Watch</div><div class="step-desc">Save the playlist. Tap on it to load channels and start watching.</div></div></div>
+
+  <div class="info-box warning">
+    <div class="info-label">Apple TV Note</div>
+    For Apple TV, use IPTV Smarters or the iPlayTV app from the App Store. Setup is the same - enter your Xtream Codes credentials.
+  </div>
+</div>
+
+<!-- ===== IPTV - FIRESTICK ===== -->
+<div class="page" id="page-iptv-firestick">
+  <h1>IPTV Setup - Amazon Firestick</h1>
+  <p class="subtitle">Setup guide for Firestick, Fire TV, and Fire TV Cube.</p>
+  <div style="margin-bottom:12px;"><span class="tag tag-fire">Firestick</span><span class="tag tag-fire">Fire TV</span><span class="tag tag-fire">Fire TV Cube</span></div>
+
+  <h2>Step 1: Enable Unknown Sources</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open Settings</div><div class="step-desc">From the Firestick home screen, go to Settings > My Fire TV > Developer Options.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Enable Apps from Unknown Sources</div><div class="step-desc">Turn ON "Apps from Unknown Sources" (or "Install Unknown Apps"). If you see a list, enable it for "Silk Browser" or "Downloader".</div></div></div>
+
+  <h2>Step 2: Install Downloader App</h2>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Get Downloader</div><div class="step-desc">Go to the Amazon App Store (search icon on home screen). Search for "Downloader" by AFTVnews. Install it.</div></div></div>
+
+  <h2>Step 3: Install TiviMate</h2>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Download TiviMate</div><div class="step-desc">Open Downloader. Enter the download URL for TiviMate APK (ask in your Discord support ticket for the link). Download and install.</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Setup TiviMate</div><div class="step-desc">Open TiviMate. Select "Add Playlist" > "Xtream Codes". Enter your server URL, username, and password.</div></div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Enjoy</div><div class="step-desc">Wait for channels to load. Use the remote to browse channels, access the EPG guide, and watch content.</div></div></div>
+
+  <div class="info-box">
+    <div class="info-label">Pro Tip</div>
+    For the best experience on Firestick, use an ethernet adapter for a wired connection. This eliminates buffering caused by weak WiFi signals.
+  </div>
+</div>
+
+<!-- ===== IPTV - SMART TV ===== -->
+<div class="page" id="page-iptv-smarttv">
+  <h1>IPTV Setup - Smart TV</h1>
+  <p class="subtitle">Setup guide for Samsung, LG, and other smart TVs.</p>
+  <div style="margin-bottom:12px;"><span class="tag tag-tv">Samsung</span><span class="tag tag-tv">LG</span><span class="tag tag-tv">Sony</span><span class="tag tag-tv">Other</span></div>
+
+  <h2>Samsung Smart TV</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open Samsung App Store</div><div class="step-desc">Press the Smart Hub / Apps button on your remote. Search for "IPTV Smarters" or "Smart IPTV".</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Install and Open</div><div class="step-desc">Install the app and open it. For IPTV Smarters, enter your Xtream Codes credentials.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Smart IPTV Setup</div><div class="step-desc">If using Smart IPTV: note the MAC address shown on screen. Go to siptv.app/mylist on your phone. Enter the MAC address and your M3U URL. Click "Send". Restart the app.</div></div></div>
+
+  <h2>LG Smart TV</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open LG Content Store</div><div class="step-desc">Press the Home button and open the LG Content Store. Search for "Smart IPTV".</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Note MAC Address</div><div class="step-desc">Install and open the app. Note the MAC address displayed on screen.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Upload Playlist</div><div class="step-desc">On your phone/computer, go to siptv.app/mylist. Enter your TV's MAC address and your M3U URL. Click "Send". Restart the app on your TV.</div></div></div>
+
+  <div class="info-box warning">
+    <div class="info-label">Older TVs</div>
+    If your Smart TV doesn't have an app store or the apps above, consider connecting a Firestick or Android TV box to your TV instead. Check the Firestick or Android setup guides.
+  </div>
+</div>
+
+<!-- ===== IPTV - PC ===== -->
+<div class="page" id="page-iptv-pc">
+  <h1>IPTV Setup - Windows / Mac</h1>
+  <p class="subtitle">Setup guide for desktop and laptop computers.</p>
+  <div style="margin-bottom:12px;"><span class="tag tag-pc">Windows</span><span class="tag tag-pc">Mac</span></div>
+
+  <h2>Option 1: IPTV Smarters (Recommended)</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download IPTV Smarters</div><div class="step-desc">Go to the IPTV Smarters official website and download the Windows or Mac version.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Login</div><div class="step-desc">Open the app and select "Xtream Codes API". Enter your server URL, username, and password.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Watch</div><div class="step-desc">Browse Live TV, Movies, and Series. Use the built-in EPG for the TV guide.</div></div></div>
+
+  <h2>Option 2: VLC Media Player (Free)</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Download VLC</div><div class="step-desc">Go to videolan.org and download VLC for your operating system. Install it.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Open Stream</div><div class="step-desc">Open VLC. Go to Media > Open Network Stream (Windows) or File > Open Network (Mac).</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Enter M3U URL</div><div class="step-desc">Paste your M3U playlist URL (provided after purchase) and click Play.</div></div></div>
+</div>
+
+<!-- ===== IPTV - MAG ===== -->
+<div class="page" id="page-iptv-mag">
+  <h1>IPTV Setup - MAG Box</h1>
+  <p class="subtitle">Setup guide for MAG 254, 256, 322, 324, 420, and other MAG devices.</p>
+
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Get Your MAC Address</div><div class="step-desc">Go to Settings > System Info on your MAG box. Note the MAC address (starts with 00:1A:79). Send this to us in your Discord ticket.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Set Portal URL</div><div class="step-desc">Go to Settings > Servers > Portals. Set Portal 1 Name to "MACIRL". Set Portal 1 URL to the portal URL we provide.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Save and Restart</div><div class="step-desc">Save the settings and restart the MAG box. The portal will load automatically with all channels.</div></div></div>
+
+  <div class="info-box">
+    <div class="info-label">Important</div>
+    MAG boxes use MAC-based authentication. You must provide your MAC address before we can activate your service.
+  </div>
+</div>
+
+<!-- ===== IPTV - ENIGMA2 ===== -->
+<div class="page" id="page-iptv-enigma">
+  <h1>IPTV Setup - Enigma2 / Zgemma</h1>
+  <p class="subtitle">Setup guide for Enigma2-based receivers (Zgemma, VU+, Dreambox, etc).</p>
+
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Install E2iPlayer or XtreamTV</div><div class="step-desc">Use the plugin installer on your Enigma2 box to install E2iPlayer or XtreamTV plugin.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Enter Credentials</div><div class="step-desc">Open the plugin and go to Settings. Enter your Xtream Codes server URL, username, and password.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Load Channels</div><div class="step-desc">Save and exit settings. The channel list will load. Browse by category or use the search function.</div></div></div>
+
+  <div class="info-box">
+    <div class="info-label">Alternative Method</div>
+    You can also load an M3U playlist via the Bouquet Editor. Ask in your support ticket for instructions specific to your receiver model.
+  </div>
+</div>
+
+<!-- ===== IPTV - FORMULER ===== -->
+<div class="page" id="page-iptv-formuler">
+  <h1>IPTV Setup - Formuler</h1>
+  <p class="subtitle">Setup guide for Formuler Z7+, Z8, Z10, Z11, GTV, and other models.</p>
+
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open MyTVOnline 2 (MTO2)</div><div class="step-desc">Formuler boxes come with MyTVOnline 2 pre-installed. Open it from the home screen.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add Portal</div><div class="step-desc">Select "Add Portal". Enter a nickname (e.g. "MACIRL"). Choose "Xtream Codes" as the portal type.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Enter Credentials</div><div class="step-desc">Enter your server URL, username, and password. Tap "Connect".</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Enjoy</div><div class="step-desc">Channels will load with full EPG. Use the MTO2 interface to browse, favourite channels, and set reminders.</div></div></div>
+</div>
+
+<!-- ===== MEDIA SERVER - SETUP ===== -->
+<div class="page" id="page-media-setup">
+  <h1>Media Server - Getting Started</h1>
+  <p class="subtitle">How to access and use your MACIRL media server.</p>
+
+  <div class="info-box success">
+    <div class="info-label">What You Get</div>
+    Access to a massive library of movies and TV shows, updated daily. Stream on demand, anytime, on any device.
+  </div>
+
+  <h2>How It Works</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Place Your Order</div><div class="step-desc">Open a support ticket in Discord and choose a media server plan.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Accept the Invite</div><div class="step-desc">After payment, you'll receive an email invite. Click the link to accept access to the media server. Check spam if you don't see it.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Download the App</div><div class="step-desc">Get the appropriate app for your device (see Recommended Apps page).</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Sign In</div><div class="step-desc">Open the app and sign in with the account you used to accept the invite. The shared library appears automatically.</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Start Watching</div><div class="step-desc">Browse movies, TV shows, or search for something specific. Stream in up to 4K quality.</div></div></div>
+</div>
+
+<!-- ===== MEDIA SERVER - APPS ===== -->
+<div class="page" id="page-media-apps">
+  <h1>Media Server - Recommended Apps</h1>
+  <p class="subtitle">The best app for each device to access your media server.</p>
+
+  <table>
+    <thead><tr><th>Device</th><th>Recommended App</th><th>Where to Get It</th></tr></thead>
+    <tbody>
+      <tr><td>Android Phone/Tablet</td><td>Plex / Emby</td><td>Google Play Store</td></tr>
+      <tr><td>iPhone / iPad</td><td>Plex / Emby</td><td>App Store</td></tr>
+      <tr><td>Amazon Firestick</td><td>Plex / Emby</td><td>Amazon App Store</td></tr>
+      <tr><td>Android TV / Google TV</td><td>Plex / Emby</td><td>Google Play Store</td></tr>
+      <tr><td>Apple TV</td><td>Plex / Infuse</td><td>App Store</td></tr>
+      <tr><td>Samsung Smart TV</td><td>Plex / Emby</td><td>Samsung App Store</td></tr>
+      <tr><td>LG Smart TV</td><td>Plex / Emby</td><td>LG Content Store</td></tr>
+      <tr><td>Windows PC</td><td>Plex / Emby</td><td>plex.tv or emby.media</td></tr>
+      <tr><td>Mac</td><td>Plex / Infuse</td><td>plex.tv or App Store</td></tr>
+      <tr><td>Xbox</td><td>Plex / Emby</td><td>Microsoft Store</td></tr>
+      <tr><td>PlayStation</td><td>Plex</td><td>PlayStation Store</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== MEDIA SERVER - REQUESTS ===== -->
+<div class="page" id="page-media-requests">
+  <h1>Content Requests</h1>
+  <p class="subtitle">Can't find a movie or show? Request it!</p>
+
+  <p>We have a massive library, but if something is missing, we're happy to add it.</p>
+
+  <h2>How to Request</h2>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open a Discord Ticket</div><div class="step-desc">Go to the support-tickets channel in our Discord server and open a ticket.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Tell Us What You Want</div><div class="step-desc">Provide the movie or TV show name, and the year if possible. The more specific, the faster we can find it.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">We Add It</div><div class="step-desc">Most requests are fulfilled within 24 hours. We'll let you know in your ticket when it's ready.</div></div></div>
+
+  <div class="info-box">
+    <div class="info-label">Note</div>
+    Some very new releases may not be available in high quality immediately. We add the best available version and upgrade automatically when a better copy is released.
+  </div>
+</div>
+
+<!-- ===== TROUBLESHOOTING ===== -->
+<div class="page" id="page-troubleshooting">
+  <h1>Troubleshooting</h1>
+  <p class="subtitle">Fix common issues quickly.</p>
+
+  <h2>IPTV Issues</h2>
+
+  <h3>Buffering / Freezing</h3>
+  <p>This is almost always an internet or ISP issue. Try the following:</p>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Check your internet speed at speedtest.net - you need at least 25 Mbps</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Switch from WiFi to a wired ethernet connection if possible</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Try using a VPN - your ISP may be throttling streaming traffic</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Clear the app cache and restart</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Try a different IPTV player app</div></div></div>
+
+  <h3>Cannot Login / Connection Failed</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Double-check your username and password - they are case sensitive</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Make sure the server URL is correct (no extra spaces)</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Check if your subscription has expired</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Try a different app to rule out app-specific issues</div></div></div>
+
+  <h3>No EPG (TV Guide)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Go to the app settings and manually refresh/update the EPG</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Wait up to 24 hours for EPG data to fully populate</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Make sure your timezone is set correctly in the app settings</div></div></div>
+
+  <h2>Media Server Issues</h2>
+
+  <h3>Library Not Showing</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Make sure you accepted the email invite</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Sign out and back in on the app</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Check for app updates</div></div></div>
+
+  <h3>Playback Issues</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Lower the streaming quality in the app settings</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Use a wired connection for 4K content</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Try "Direct Play" instead of transcoding in the app settings</div></div></div>
+
+  <div class="info-box warning">
+    <div class="info-label">Still stuck?</div>
+    Open a support ticket in our Discord server. Include your device type, the app you're using, and screenshots of any error messages.
+  </div>
+</div>
+
+<!-- ===== VPN GUIDE ===== -->
+<div class="page" id="page-vpn">
+  <h1>VPN Guide</h1>
+  <p class="subtitle">Why you should use a VPN and which ones we recommend.</p>
+
+  <h2>Why Use a VPN?</h2>
+  <p>A VPN (Virtual Private Network) encrypts your internet traffic and prevents your ISP from seeing what you're streaming. Benefits include:</p>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Prevent ISP Throttling</div><div class="step-desc">Some ISPs deliberately slow down streaming traffic. A VPN hides your activity so they can't throttle you.</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Privacy</div><div class="step-desc">Your ISP can't log what you watch or stream. Your activity stays private.</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Security</div><div class="step-desc">Encrypts your connection on public WiFi networks.</div></div></div>
+
+  <h2>Recommended VPNs</h2>
+  <table>
+    <thead><tr><th>VPN</th><th>Best For</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td>Surfshark</td><td>Unlimited devices, great value</td><td>~$3/month</td></tr>
+      <tr><td>NordVPN</td><td>Speed and reliability</td><td>~$4/month</td></tr>
+      <tr><td>ExpressVPN</td><td>Premium performance</td><td>~$8/month</td></tr>
+      <tr><td>IPVanish</td><td>IPTV-friendly, no logs</td><td>~$4/month</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <div class="info-label">Tip</div>
+    When using a VPN with IPTV, connect to a server in the same country as the IPTV server for the best speeds. If unsure, ask in your support ticket which server location to use.
+  </div>
+</div>
+
+<!-- ===== CONTACT ===== -->
+<div class="page" id="page-contact">
+  <h1>Contact Us</h1>
+  <p class="subtitle">Get in touch with the MACIRL team.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">&#128172;</div>
+      <div class="card-title">Discord</div>
+      <div class="card-desc">Open a support ticket in our Discord server for the fastest response. We aim to reply within a few hours.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#9200;</div>
+      <div class="card-title">Response Times</div>
+      <div class="card-desc">Support tickets: 1-6 hours. Orders: 1-2 hours setup. Content requests: within 24 hours.</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">Best Way to Reach Us</div>
+    The Discord support ticket system is the fastest way to get help. Open a ticket and our team will be notified immediately.
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  const navItem = document.querySelector('.nav-item[data-page="' + id + '"]');
+  if (navItem) navItem.classList.add('active');
+  document.getElementById('topbarTitle', id);
+  // Update topbar
+  if (navItem) document.getElementById('topbarTitle').textContent = navItem.textContent.trim();
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => showPage(item.dataset.page));
+});
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function handleSearch() {
+  const q = document.getElementById('searchBox').value.toLowerCase().trim();
+  if (!q) return;
+  // Simple search: find a page that contains the search term
+  const pages = document.querySelectorAll('.page');
+  for (const page of pages) {
+    if (page.textContent.toLowerCase().includes(q)) {
+      const id = page.id.replace('page-', '');
+      showPage(id);
+      return;
+    }
+  }
+}
+
+document.getElementById('searchBox').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSearch();
+});
+</script>
+</body>
+</html>
