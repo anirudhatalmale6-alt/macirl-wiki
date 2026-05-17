@@ -143,9 +143,35 @@ tr:hover td { background: var(--bg-hover); }
 
 /* Pricing highlight */
 .price-highlight { font-weight: 800; color: var(--green); font-size: 16px; }
+
+/* Video Splash Screen */
+.splash-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #08080f;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  transition: opacity 0.6s ease;
+}
+.splash-overlay.fade-out { opacity: 0; pointer-events: none; }
+.splash-overlay video {
+  max-width: 100%; max-height: 85vh; object-fit: contain;
+}
+.splash-skip {
+  margin-top: 18px; padding: 10px 32px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.7); font-size: 14px; border-radius: 24px;
+  cursor: pointer; transition: all 0.3s; letter-spacing: 1px;
+}
+.splash-skip:hover { border-color: var(--accent); color: var(--accent); }
 </style>
 </head>
 <body>
+
+<div class="splash-overlay" id="splashOverlay">
+  <video id="splashVideo" autoplay muted playsinline>
+    <source src="promo.mp4" type="video/mp4">
+  </video>
+  <button class="splash-skip" onclick="closeSplash()">SKIP</button>
+</div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -711,6 +737,19 @@ function handleSearch() {
 document.getElementById('searchBox').addEventListener('keydown', e => {
   if (e.key === 'Enter') handleSearch();
 });
+
+// Splash screen
+function closeSplash() {
+  const overlay = document.getElementById('splashOverlay');
+  overlay.classList.add('fade-out');
+  setTimeout(() => overlay.remove(), 700);
+}
+const splashVid = document.getElementById('splashVideo');
+if (splashVid) {
+  splashVid.addEventListener('ended', closeSplash);
+  splashVid.addEventListener('error', closeSplash);
+  setTimeout(closeSplash, 35000);
+}
 </script>
 </body>
 </html>
